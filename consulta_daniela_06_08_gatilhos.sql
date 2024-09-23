@@ -1,7 +1,8 @@
-
 WITH sub AS (
 SELECT
     d.F14474 AS dossie,
+    MAX(n.F00091) AS adverso,
+    MAX(n.F27086) AS cpf_cnpj,
     MAX(e.F01062) AS criado_em,
     MAX(
         CASE
@@ -21,6 +22,7 @@ SELECT
         END
     ) AS tipo_acao,
     MAX(h.F00162) AS fase,
+    MAX(j.F01132) AS evento,
     MAX(
         CASE
             WHEN j.F01132 IN (
@@ -43,6 +45,7 @@ SELECT
                 'Execução 3.5 - 3ª Citação negativa',
                 'Execução 3.6 - Certidão negativa',
                 'Execução 8.3.4 - Remoção de bem penhorado',
+                'BA 2.1 - Deferida liminar de BA/RP',
                 'BA 3.1 - Retomada efetivada',
                 'BA 3.2 - Retomada parcial',
                 'BA 4.14 - Retomada efetivada',
@@ -92,6 +95,7 @@ SELECT
     'Execução 3.5 - 3ª Citação negativa',
     'Execução 3.6 - Certidão negativa',
     'Execução 8.3.4 - Remoção de bem penhorado',
+    'BA 2.1 - Deferida liminar de BA/RP',
     'BA 3.1 - Retomada efetivada',
     'BA 3.2 - Retomada parcial',
     'BA 4.14 - Retomada efetivada',
@@ -144,84 +148,35 @@ LEFT JOIN [ramaprod].[dbo].T02676 AS z ON d.F43645 = z.ID
 LEFT JOIN [ramaprod].[dbo].T02678 AS w ON d.F43647 = w.ID
 LEFT JOIN [ramaprod].[dbo].T02677 AS y ON d.F43646 = y.ID
 LEFT JOIN [ramaprod].[dbo].T00034 AS aa ON d.F01122 = aa.ID
-WHERE
-    j.F01132 IN (
-        'Execução 3.1 - Citação devedor principal',
-        'Execução 3.2 - Citação coobrigado',
-        'Monitória 2.1 - Citação devedor principal',
-        'Monitória 2.2 - Citação coobrigado',
-        'Cobrança 2.1 - Citação devedor principal',
-        'Cobrança 2.2 - Citação coobrigado',
-        'Monitória 2.3 - 1ª Citação negativa',
-        'Monitória 2.4 - 2ª Citação negativa',
-        'Monitória 2.5 - 3ª Citação negativa',
-        'Monitória 2.6 - Certidão negativa',
-        'Cobrança 2.3 - 1ª Citação negativa',
-        'Cobrança 2.4 - 2ª Citação negativa',
-        'Cobrança 2.5 - 3ª Citação negativa',
-        'Cobrança 2.6 - Certidão negativa',
-        'Execução 3.3 - 1ª Citação negativa',
-        'Execução 3.4 - 2ª Citação negativa',
-        'Execução 3.5 - 3ª Citação negativa',
-        'Execução 3.6 - Certidão negativa',
-        'Execução 8.3.4 - Remoção de bem penhorado',
-        'BA 3.1 - Retomada efetivada',
-        'BA 3.2 - Retomada parcial',
-        'BA 4.14 - Retomada efetivada',
-        'BA 4.15 - Retomada parcial',
-        'BA 3.4 - Mandado negativo',
-        'BA 4.17 - Mandado negativo',
-        'Execução 6.1.1 - Deferido bloqueio Bacenjud',
-        'Execução 6.18.1 - Resultado pesquisa Infojud',
-        'Execução 6.2.1 - Deferido bloqueio Renajud',
-        'Execução 4.1.1 - Defesa sem efeito suspensivo',
-        'Execução 4.1.6 - Exceção de pré-executividade',
-        'Execução 4.1.7 - Embargos à execução',
-        'Monitória 3.1 - Embargos monitórios',
-        'Cobrança 3.1 - Contestação',
-        'Monitória 4.1 - Procedente',
-        'Cobrança 4.1 - Procedente',
-        'BA 5.1 - Sentença procedente',
-        'Homologação 4.1 - Procedente',
-        'Monitória 4.2 - Improcedente',
-        'Cobrança 4.2 - Improcedente',
-        'Homologação 4.2 - Improcedente',
-        'BA 5.3 - Sentença improcedente',
-        'Execução 11.3 - Alvará expedido',
-        'Aguardando cumprimento de mandado',
-        'Aguardando cumprimento de mandado de citação'
-    )
 GROUP BY d.F14474
 )
 SELECT
     dossie,
+    adverso,
+    cpf_cnpj,
     fase,
     situacao,
     tipo_acao,
+    evento,
     (CASE
-        WHEN ultimo_evento IN ('BA 2.1 - Deferida liminar de BA/RP') THEN 'LIMINAR DEFERIDA'
-        WHEN ultimo_evento IN ('Aguardando cumprimento de mandado', 'Aguardando cumprimento de mandado de citação') THEN 'MANDADO EXPEDIDO'
-        WHEN ultimo_evento IN ('Execução 3.1 -  Citação devedor principal', 'Execução 3.2 -  Citação coobrigado', 'Monitória 2.1 -  Citação devedor principal', 'Monitória 2.2 -  Citação coobrigado', 'Cobrança 2.1 -  Citação devedor principal', 'Cobrança 2.2 -  Citação coobrigado') THEN 'CITAÇÃO POSITIVA'
-        WHEN ultimo_evento IN ('Monitória 2.1 - Citação devedor principal','Monitória 2.2 - Citação coobrigado','Cobrança 2.1 - Citação devedor principal','Cobrança 2.2 - Citação coobrigado','Monitória 2.3 - 1ª Citação negativa',
-        'Monitória 2.4 - 2ª Citação negativa','Monitória 2.5 - 3ª Citação negativa','Monitória 2.6 - Certidão negativa','Cobrança 2.3 - 1ª Citação negativa','Cobrança 2.4 - 2ª Citação negativa',
+        WHEN ultimo_evento IN ('BA 2.1 - Deferida liminar de BA/RP') THEN 'Liminar Deferida'
+        WHEN ultimo_evento IN ('Aguardando cumprimento de mandado', 'Aguardando cumprimento de mandado de citação') THEN 'Mandado Expedido'
+        WHEN ultimo_evento IN ('Execução 3.1 - Citação devedor principal', 'Execução 3.2 - Citação coobrigado', 'Monitória 2.1 - Citação devedor principal', 'Monitória 2.2 - Citação coobrigado', 'Cobrança 2.1 - Citação devedor principal', 'Cobrança 2.2 - Citação coobrigado') THEN 'Citação Positiva'
+        WHEN ultimo_evento IN ('Monitória 2.3 - 1ª Citação negativa', 'Monitória 2.4 - 2ª Citação negativa','Monitória 2.5 - 3ª Citação negativa','Monitória 2.6 - Certidão negativa','Cobrança 2.3 - 1ª Citação negativa','Cobrança 2.4 - 2ª Citação negativa',
         'Cobrança 2.5 - 3ª Citação negativa','Cobrança 2.6 - Certidão negativa','Execução 3.3 - 1ª Citação negativa','Execução 3.4 - 2ª Citação negativa','Execução 3.5 - 3ª Citação negativa',
-        'Execução 3.6 - Certidão negativa') THEN 'CITAÇÃO NEGATIVA'
-        WHEN ultimo_evento IN ('Execução 8.3.4 - Remoção de bem penhorado','BA 3.1 - Retomada efetivada','BA 3.2 - Retomada parcial','BA 4.14 - Retomada efetivada','BA 4.15 - Retomada parcial') THEN 'MANDADO POSITIVO / RETOMADA EFETIVADA'
-        WHEN ultimo_evento IN ('BA 3.4 - Mandado negativo','BA 4.17 - Mandado negativo') THEN 'MANDADO NEGATIVO'
-        WHEN ultimo_evento IN ('Execução 6.1.1 - Deferido bloqueio Bacenjud','Execução 6.18.1 - Resultado pesquisa Infojud','Execução 6.2.1 - Deferido bloqueio Renajud') THEN 'CONSTRIÇÃO DEFERIDA (RENAJUD/ INFOJUD/ BACEN)'
+        'Execução 3.6 - Certidão negativa') THEN 'Citação Negativa'
+        WHEN ultimo_evento IN ('Execução 8.3.4 - Remoção de bem penhorado','BA 3.1 - Retomada efetivada','BA 3.2 - Retomada parcial','BA 4.14 - Retomada efetivada','BA 4.15 - Retomada parcial') THEN 'Bem Apreendido'
+        WHEN ultimo_evento IN ('BA 3.4 - Mandado negativo','BA 4.17 - Mandado negativo') THEN 'Mandado Negativo'
+        WHEN ultimo_evento IN ('Execução 6.1.1 - Deferido bloqueio Bacenjud','Execução 6.18.1 - Resultado pesquisa Infojud','Execução 6.2.1 - Deferido bloqueio Renajud') THEN 'Penhora/Bloqueio Deferido/Efetivado'
         WHEN ultimo_evento IN ( 'Execução 4.1.1 - Defesa sem efeito suspensivo','Execução 4.1.6 - Exceção de pré-executividade','Execução 4.1.7 - Embargos à execução','Monitória 3.1 - Embargos monitórios',
-        'Cobrança 3.1 - Contestação') THEN 'DEFESA ADVERSO'
-        WHEN ultimo_evento IN ('Monitória 4.1 - Procedente','Cobrança 4.1 - Procedente','BA 5.1 - Sentença procedente','Homologação 4.1 - Procedente') THEN 'SENTENÇA PROCEDENTE'
-        WHEN ultimo_evento IN ('Monitória 4.2 - Improcedente','Cobrança 4.2 - Improcedente','Homologação 4.2 - Improcedente','BA 5.3 - Sentença improcedente') THEN 'SENTENÇA IMPROCEDENTE'
-        WHEN ultimo_evento = 'Execução 11.3 - Alvará expedido' THEN 'ALVARÁ EXPEDIDO'
-        WHEN fase = 'Inicial' THEN 'DISTRIBUIDO'
-        WHEN fase = 'Acordo' THEN 'EM ACORDO'
-        WHEN fase = 'Suspenso' THEN 'PROCESSO SUSPENSO'
+        'Cobrança 3.1 - Contestação') THEN 'Defesa'
+        WHEN ultimo_evento IN ('Monitória 4.1 - Procedente','Cobrança 4.1 - Procedente','BA 5.1 - Sentença procedente','Homologação 4.1 - Procedente') THEN 'Sentença Procedente'
+        WHEN ultimo_evento IN ('Monitória 4.2 - Improcedente','Cobrança 4.2 - Improcedente','Homologação 4.2 - Improcedente','BA 5.3 - Sentença improcedente') THEN 'Sentença Improcedente'
+        WHEN ultimo_evento = 'Execução 11.3 - Alvará expedido' THEN 'Alvará Deferido/Expedido'
+        WHEN fase = 'Inicial' THEN 'Ação Distribuída'
+        WHEN fase = 'Acordo' THEN 'Acordo'
+        WHEN fase = 'Suspenso' THEN 'Processos Suspenso'
         ELSE NULL
     END) AS status,
     data_ultimo_evento
 FROM sub;
-
-
-
-

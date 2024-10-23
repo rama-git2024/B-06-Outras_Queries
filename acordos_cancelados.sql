@@ -13,7 +13,6 @@ WITH DossieEventos AS (
     LEFT JOIN [ramaprod].[dbo].T00030 AS p ON cb.F27938 = p.ID
     LEFT JOIN [ramaprod].[dbo].T00045 AS dv ON cb.F31050 = dv.ID
     WHERE 
-        ev.F09582 >= CAST('2024-07-01' AS DATE) AND 
+        ev.F09582 >= CAST('2024-08-28' AS DATE) AND ev.F09582 <= CAST('2024-09-30' AS DATE)
         n.F09562 IN ('Acordo cancelado', 'Acordo externo')
-
 )

@@ -18,13 +18,12 @@ WITH NomeProcessado AS (
     WHERE PATINDEX('%[^A-Za-z0-9 ]%', F00091) <> 0
 )
 SELECT 
-	REPLACE(nome, ' ', '') AS nome_pessoa, 
-	COUNT(original_nome) AS qtde_nome_pessoa
+    REPLACE(nome, ' ', '') AS nome_pessoa, 
+    COUNT(original_nome) AS qtde_nome_pessoa
 FROM NomeProcessado
 GROUP BY REPLACE(nome, ' ', '')
 HAVING COUNT(original_nome) > 1
 ORDER BY qtde_nome_pessoa DESC;
-
 
 SELECT
     UPPER(REPLACE(F00091, ' ', '')) AS nome,
